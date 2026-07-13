@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chartroom"
+version = "0.1.0"
+description = "Multi-model perspective library — route queries to four chart perspectives, analyze consensus and divergence"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "SuperInstance"}]
+requires-python = ">=3.10"
+keywords = ["multi-model", "llm", "perspectives", "consensus", "divergence", "chart-room"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov"]
+server = ["flask>=3.0"]
+
+[project.urls]
+Homepage = "https://github.com/SuperInstance/chart-room"
+Repository = "https://github.com/SuperInstance/chart-room"
+
+[tool.setuptools.packages.find]
+where = ["src"]
