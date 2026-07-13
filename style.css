@@ -1,0 +1,359 @@
+/* ============================================================
+   THE CHART ROOM — Style
+   Dark theme. Nautical feel. Like a chart table on a boat.
+   ============================================================ */
+
+:root {
+  /* Deep water palette */
+  --abyss: #0a0e14;
+  --deep: #0f1620;
+  --surface: #161e2a;
+  --fog: #1e2838;
+  --ridge: #2a3548;
+
+  /* Signal colors */
+  --green: #4ade80;
+  --yellow: #facc15;
+  --red: #f87171;
+
+  /* Brine accents */
+  --brine: #5b9aa0;
+  --foam: #b8d4d8;
+  --rust: #c97b4a;
+  --brass: #c9a84a;
+
+  /* Text */
+  --ink: #e2d8be;
+  --pale: #8a9aaa;
+  --dim: #5a6a7a;
+
+  /* Glow */
+  --glow-green: rgba(74, 222, 128, 0.15);
+  --glow-yellow: rgba(250, 204, 21, 0.15);
+  --glow-red: rgba(248, 113, 113, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--abyss);
+  color: var(--ink);
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  /* Subtle chart-grid background */
+  background-image:
+    linear-gradient(rgba(91, 154, 160, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 154, 160, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ==================== HEADER ==================== */
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--deep);
+  border-bottom: 1px solid var(--ridge);
+  flex-shrink: 0;
+}
+
+.chart-header h1 {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.chart-header h1 span {
+  color: var(--pale);
+  font-weight: 300;
+}
+
+.chart-header .status {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 1px;
+}
+
+/* ==================== CHART TABLE ==================== */
+
+.chart-table {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px;
+  background: var(--ridge);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==================== QUADRANT ==================== */
+
+.quadrant {
+  background: var(--deep);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.quadrant-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--fog);
+  flex-shrink: 0;
+}
+
+.quadrant-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.quadrant-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--pale);
+}
+
+.quadrant-subtitle {
+  font-size: 10px;
+  color: var(--dim);
+  margin-left: auto;
+  font-style: italic;
+}
+
+.quadrant-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ridge) transparent;
+}
+
+.quadrant-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.quadrant-body::-webkit-scrollbar-thumb {
+  background: var(--ridge);
+  border-radius: 2px;
+}
+
+/* Per-chart accent borders */
+.quadrant.fisherman { border-top: 2px solid transparent; }
+.quadrant.fisherman .quadrant-header { border-left: 2px solid var(--brine); }
+.quadrant.sailor .quadrant-header { border-left: 2px solid var(--foam); }
+.quadrant.tourist .quadrant-header { border-left: 2px solid var(--rust); }
+.quadrant.native .quadrant-header { border-left: 2px solid var(--brass); }
+
+/* ==================== CONTENT ==================== */
+
+.placeholder {
+  color: var(--dim);
+  font-style: italic;
+  text-align: center;
+  padding-top: 40px;
+  line-height: 1.8;
+}
+
+.chart-response {
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.chart-response p {
+  margin-bottom: 10px;
+}
+
+.chart-response .observation {
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-left: 2px solid var(--brine);
+  background: rgba(91, 154, 160, 0.05);
+  font-size: 12px;
+  color: var(--pale);
+}
+
+.chart-response .observation .signal {
+  color: var(--foam);
+  font-weight: 600;
+}
+
+.chart-response .negative-obs {
+  border-left-color: var(--brass);
+  background: rgba(201, 168, 74, 0.05);
+  color: var(--dim);
+  font-style: italic;
+}
+
+/* Loading shimmer */
+.loading {
+  display: inline-block;
+  width: 6px;
+  height: 14px;
+  background: var(--brine);
+  animation: blink 1s infinite;
+  margin-left: 4px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Streaming cursor */
+.streaming::after {
+  content: '▌';
+  color: var(--brine);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ==================== CENTER INDICATOR ==================== */
+
+.center-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.center-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--ridge);
+  background: var(--deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  transition: all 0.5s ease;
+}
+
+.center-dot.consensus {
+  border-color: var(--green);
+  background: var(--glow-green);
+  box-shadow: 0 0 30px var(--glow-green);
+}
+
+.center-dot.complementary {
+  border-color: var(--yellow);
+  background: var(--glow-yellow);
+  box-shadow: 0 0 30px var(--glow-yellow);
+}
+
+.center-dot.contradiction {
+  border-color: var(--red);
+  background: var(--glow-red);
+  box-shadow: 0 0 30px var(--glow-red);
+}
+
+.center-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--pale);
+  background: var(--deep);
+  padding: 2px 10px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* ==================== INPUT BAR ==================== */
+
+.input-bar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--deep);
+  border-top: 1px solid var(--ridge);
+  flex-shrink: 0;
+}
+
+.input-bar input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--fog);
+  border-radius: 2px;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-bar input:focus {
+  border-color: var(--brine);
+  box-shadow: 0 0 0 1px var(--brine);
+}
+
+.input-bar input::placeholder {
+  color: var(--dim);
+  font-style: italic;
+}
+
+.input-bar button {
+  background: var(--surface);
+  border: 1px solid var(--brine);
+  border-radius: 2px;
+  color: var(--brine);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.input-bar button:hover {
+  background: var(--brine);
+  color: var(--abyss);
+}
+
+.input-bar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .chart-table {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
