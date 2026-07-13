@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Chart Room — Four Perspectives, One Truth</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="chart-header">
+    <h1>🧭 THE CHART <span>ROOM</span></h1>
+    <div class="status" id="status">● READY</div>
+  </div>
+
+  <!-- ==================== CHART TABLE ==================== -->
+  <div class="chart-table" id="chartTable">
+
+    <!-- Top-Left: Fisherman -->
+    <div class="quadrant fisherman" id="panel-fisherman">
+      <div class="quadrant-header">
+        <span class="quadrant-icon">🎣</span>
+        <span class="quadrant-title">Fisherman</span>
+        <span class="quadrant-subtitle">detail · ecology · bottom</span>
+      </div>
+      <div class="quadrant-body" id="body-fisherman">
+        <div class="placeholder">Awaiting depth…</div>
+      </div>
+    </div>
+
+    <!-- Top-Right: Sailor -->
+    <div class="quadrant sailor" id="panel-sailor">
+      <div class="quadrant-header">
+        <span class="quadrant-icon">⛵</span>
+        <span class="quadrant-title">Sailor</span>
+        <span class="quadrant-subtitle">flows · patterns · system</span>
+      </div>
+      <div class="quadrant-body" id="body-sailor">
+        <div class="placeholder">Awaiting wind…</div>
+      </div>
+    </div>
+
+    <!-- Bottom-Left: Tourist -->
+    <div class="quadrant tourist" id="panel-tourist">
+      <div class="quadrant-header">
+        <span class="quadrant-icon">📸</span>
+        <span class="quadrant-title">Tourist</span>
+        <span class="quadrant-subtitle">surface · landmarks · story</span>
+      </div>
+      <div class="quadrant-body" id="body-tourist">
+        <div class="placeholder">Awaiting landmarks…</div>
+      </div>
+    </div>
+
+    <!-- Bottom-Right: Native -->
+    <div class="quadrant native" id="panel-native">
+      <div class="quadrant-header">
+        <span class="quadrant-icon">🏝️</span>
+        <span class="quadrant-title">Native</span>
+        <span class="quadrant-subtitle">absence · negative space · what's missing</span>
+      </div>
+      <div class="quadrant-body" id="body-native">
+        <div class="placeholder">Awaiting silence…</div>
+      </div>
+    </div>
+
+    <!-- Center: Consensus/Divergence Indicator -->
+    <div class="center-indicator" id="centerIndicator" style="display:none;">
+      <div class="center-dot" id="centerDot">○</div>
+      <div class="center-label" id="centerLabel">—</div>
+    </div>
+
+  </div>
+
+  <!-- ==================== INPUT BAR ==================== -->
+  <div class="input-bar">
+    <input type="text" id="queryInput" placeholder="What are you looking at?" autocomplete="off" autofocus>
+    <button id="submitBtn" onclick="submitQuery()">Chart</button>
+  </div>
+
+<script>
+// ============================================================
+// THE CHART ROOM — Vanilla JS, no build tools
+// ============================================================
+
+const CHARTS = ['fisherman', 'sailor', 'tourist', 'native'];
+
+const CHART_PROMPTS = {
+  fisherman:
+    "You are the Fisherman. You see ecological detail, bottom structure, local patterns. " +
+    "You care about what's actually there — the substrate, the conditions, the specific organisms. " +
+    "You think in granular, grounded terms. You value field knowledge over theory. " +
+    "Respond in 4-6 sentences. Be specific and concrete.\n\n" +
+    "Subject: ",
+  sailor:
+    "You are the Sailor. You see systemic flows, weather patterns, navigational structure. " +
+    "You care about how things move and connect — currents, trade routes, dependencies. " +
+    "You think in systems and trajectories. You value the big picture over details. " +
+    "Respond in 4-6 sentences. Be structural and dynamic.\n\n" +
+    "Subject: ",
+  tourist:
+    "You are the Tourist. You see surface features, landmarks, narrative salience. " +
+    "You care about what's obvious, memorable, and easy to describe. " +
+    "You think in stories and snapshots. You value clarity over depth. " +
+    "Respond in 4-6 sentences. Be vivid and approachable.\n\n" +
+    "Subject: ",
+  native:
+    "You are the Native. You see negative space, absence patterns, what others miss. " +
+    "You care about what ISN'T there — the gaps, the omissions, the silences. " +
+    "You think in contrasts and inversions. You value what's missing over what's present. " +
+    "Respond in 4-6 sentences. Be contrarian and revelatory.\n\n" +
+    "Subject: ",
+};
+
+// ============================================================
+// Submit query
+// ============================================================
+
+async function submitQuery() {
+  const input = document.getElementById('queryInput');
+  const query = input.value.trim();
+  if (!query) return;
+
+  // Disable input
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '...';
+  input.disabled = true;
+  document.getElementById('status').textContent = '● CHARTING';
+
+  // Clear panels
+  CHARTS.forEach(chart => {
+    const body = document.getElementById('body-' + chart);
+    body.innerHTML = '<div class="chart-response streaming"><span class="loading"></span></div>';
+  });
+
+  // Hide center indicator
+  document.getElementById('centerIndicator').style.display = 'none';
+
+  try {
+    const response = await fetch('/chart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) throw new Error('Chart failed: ' + response.status);
+
+    const data = await response.json();
+
+    // Populate each panel
+    CHARTS.forEach(chart => {
+      const body = document.getElementById('body-' + chart);
+      const content = data[chart];
+
+      if (content && content.text) {
+        body.innerHTML = '<div class="chart-response">' + formatText(content.text) + '</div>';
+      } else if (content && content.observations) {
+        body.innerHTML = '<div class="chart-response">' +
+          formatObservations(content) + '</div>';
+      } else if (typeof content === 'string') {
+        body.innerHTML = '<div class="chart-response">' + formatText(content) + '</div>';
+      } else {
+        body.innerHTML = '<div class="chart-response">No signal.</div>';
+      }
+    });
+
+    // Update center indicator
+    updateCenter(data.consensus, data.divergence);
+
+  } catch (err) {
+    // If no backend, run in demo mode with mock responses
+    CHARTS.forEach(chart => {
+      const body = document.getElementById('body-' + chart);
+      body.innerHTML =
+        '<div class="chart-response"><p><em>(' + chart + ')</em> — ' +
+        'Backend not connected. Run <code>python app.py</code> to enable live charting. ' +
+        'This panel would show the <strong>' + chart + '</strong> perspective on: ' +
+        '<strong>"' + escapeHtml(query) + '"</strong></p></div>';
+    });
+    updateCenter({ level: 'complementary', description: 'Demo mode' }, null);
+  }
+
+  // Re-enable input
+  btn.disabled = false;
+  btn.textContent = 'Chart';
+  input.disabled = false;
+  input.value = '';
+  input.focus();
+  document.getElementById('status').textContent = '● READY';
+}
+
+// ============================================================
+// Center indicator
+// ============================================================
+
+function updateCenter(consensus, divergence) {
+  const indicator = document.getElementById('centerIndicator');
+  const dot = document.getElementById('centerDot');
+  const label = document.getElementById('centerLabel');
+
+  indicator.style.display = 'flex';
+
+  const level = consensus?.level || 'unknown';
+  const icons = { consensus: '●', complementary: '◐', contradiction: '✕', unknown: '○' };
+  const labels = {
+    consensus: 'CONSENSUS',
+    complementary: 'COMPLEMENTARY',
+    contradiction: 'CONTRADICTION',
+    unknown: 'AWAITING',
+  };
+
+  dot.className = 'center-dot ' + level;
+  dot.textContent = icons[level] || '○';
+  label.textContent = labels[level] || 'UNKNOWN';
+
+  if (consensus?.description) {
+    label.textContent += ' — ' + consensus.description.substring(0, 40);
+  }
+}
+
+// ============================================================
+// Formatting helpers
+// ============================================================
+
+function formatText(text) {
+  // Basic markdown-ish formatting
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>');
+}
+
+function formatObservations(content) {
+  let html = '';
+  if (content.observations && content.observations.length > 0) {
+    content.observations.forEach(obs => {
+      const cls = obs.expected === false ? 'observation negative-obs' : 'observation';
+      html += '<div class="' + cls + '">' +
+        '<span class="signal">' + escapeHtml(obs.signal || obs.location || '') +
+        '</span> — ' + escapeHtml(String(obs.value ?? obs.description ?? '')) +
+        '</div>';
+    });
+  }
+  if (content.text) {
+    html += '<p>' + formatText(content.text) + '</p>';
+  }
+  return html || '<p>No observations.</p>';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================================
+// Enter key submits
+// ============================================================
+
+document.getElementById('queryInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitQuery();
+});
+
+</script>
+</body>
+</html>
