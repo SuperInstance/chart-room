@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "chartroom"
+name = "si-chartroom"
 version = "0.1.0"
 description = "Multi-model perspective library — route queries to four chart perspectives, analyze consensus and divergence"
 readme = "README.md"
